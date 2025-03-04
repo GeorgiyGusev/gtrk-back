@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package proto.stats.v1;
+
+option go_package = "github.com/GeorgiyGusev/gtrk-back/gen/proto/stats/v1;stats_gen_v1";
+
+// Временной диапазон для статистики
+enum TimeRange {
+  TIME_RANGE_UNSPECIFIED = 0; // Не указано
+  TIME_RANGE_LAST_1_HOUR = 1; // Последний час
+  TIME_RANGE_LAST_24_HOURS = 2; // Последние 24 часа
+  TIME_RANGE_LAST_7_DAYS = 3; // Последние 7 дней
+  TIME_RANGE_LAST_30_DAYS = 4; // Последние 30 дней
+  TIME_RANGE_LAST_90_DAYS = 5; // Последние 90 дней
+  TIME_RANGE_LAST_180_DAYS = 6; // Последние 180 дней
+  TIME_RANGE_LAST_1_YEAR = 7; // Последний год
+}
+
+// Период агрегации данных
+enum AggregationPeriod {
+  AGGREGATION_PERIOD_UNSPECIFIED = 0; // Не указан
+  AGGREGATION_PERIOD_MINUTE = 1; // По минутам
+  AGGREGATION_PERIOD_HOUR = 2; // По часам
+  AGGREGATION_PERIOD_DAY = 3; // По дням
+  AGGREGATION_PERIOD_WEEK = 4; // По неделям
+  AGGREGATION_PERIOD_MONTH = 5; // По месяцам
+}
+enum Source {
+  SOURCE_UNSPECIFIED = 0;
+  SOURCE_TELEGRAM = 1;
+  SOURCE_VK = 2;
+  SOURCE_SITE = 3;
+}
+
+// Запрос для получения статистики по просмотрам **конкретной новости**
+message GetViewsStatisticsForNewsRequest {
+  // ID новости, для которой запрашивается статистика
+  string news_id = 1;
+
+  // Период агрегации данных (например: "hour", "day", "week", "month")
+  AggregationPeriod period = 2;
+
+  // Временной диапазон для статистики
+  TimeRange time_range = 3;
+
+  Source source = 4;
+}
+
+// Запрос для получения статистики по просмотрам **всем новостям**
+message GetViewsStatisticsForAllNewsRequest {
+  // Период агрегации данных (например: "hour", "day", "week", "month")
+  AggregationPeriod period = 1;
+
+  // Временной диапазон для статистики
+  TimeRange time_range = 2;
+
+  Source source = 3;
+}
+
+// Ответ с данными статистики по просмотрам **для конкретной новости**
+message GetViewsStatisticsForNewsResponse {
+  // Идентификатор новости, для которой запрашивается статистика
+  string news_id = 1;
+
+  // Список статистики по времени (например, по часам, дням и т.д.)
+  repeated ViewData views = 2;
+}
+
+// Ответ с данными статистики по просмотрам **для всех новостей**
+message GetViewsStatisticsForAllNewsResponse {
+  // Список статистики по времени (например, по часам, дням и т.д.)
+  repeated ViewData views = 1;
+}
+
+// Структура для одного элемента статистики
+message ViewData {
+  // Время (например, время начала дня, часа и т.д.)
+  string time = 1; // @gotags: db:"time" validate:"uuid4,email"
+
+  // Количество просмотров за данный период времени
+  uint64 views_count = 2; // @gotags: db:"views_count"
+}
+
+// Сервис для получения статистики по новостям
+service NewsStatisticsService {
+  // Метод для получения статистики по просмотрам конкретной новости
+  rpc GetViewsStatisticsForNews(GetViewsStatisticsForNewsRequest) returns (GetViewsStatisticsForNewsResponse);
+
+  // Метод для получения статистики по просмотрам всех новостей
+  rpc GetViewsStatisticsForAllNews(GetViewsStatisticsForAllNewsRequest) returns (GetViewsStatisticsForAllNewsResponse);
+}

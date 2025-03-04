@@ -1,0 +1,12 @@
+POST http://localhost:8080/cards
+Content-Type: application/json
+
+{
+  "name": "PowerBlack",
+  "characteristics": [
+    {
+      "id": 1,
+      "value": "20x30x30"
+    }
+  ]
+}

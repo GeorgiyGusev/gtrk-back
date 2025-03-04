@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package proto.users_subs.v1;
+
+option go_package = "github.com/GeorgiyGusev/gtrk-back/gen/proto/users_subs/v1;users_subs_gen_v1";
+
+service UsersSubsService {
+  rpc CreateUserSub(CreateUserSubRequest) returns (CreateUserSubResponse);
+}
+
+message CreateUserSubRequest {
+  string telegram_id = 1; // @gotags: db:"telegram_id"
+}
+message CreateUserSubResponse {}
+
+

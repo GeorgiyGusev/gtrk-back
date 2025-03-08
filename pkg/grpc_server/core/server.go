@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"github.com/GeorgiyGusev/gtrk-back/pkg/grpc_server/interceptors"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -13,11 +14,11 @@ import (
 type UnaryServerInterceptors []grpc.UnaryServerInterceptor
 type StreamServerInterceptors []grpc.StreamServerInterceptor
 
-func NewGrpcServer(unaryInterceptors []grpc.UnaryServerInterceptor, streamInterceptors []grpc.StreamServerInterceptor) *grpc.Server {
+func NewGrpcServer(unaryInterceptors []interceptors.UnaryInterceptor, streamInterceptors []interceptors.StreamInterceptor) *grpc.Server {
 	slog.Info("Initializing server", grpcServerTag)
 	server := grpc.NewServer(
-		grpc.ChainUnaryInterceptor(unaryInterceptors...),
-		grpc.ChainStreamInterceptor(streamInterceptors...),
+		grpc.ChainUnaryInterceptor(interceptors.BuildUnaryInterceptorChaim(unaryInterceptors)...),
+		grpc.ChainStreamInterceptor(interceptors.BuildStreamInterceptorChaim(streamInterceptors)...),
 		grpc.Creds(insecure.NewCredentials()),
 	)
 	reflection.Register(server)

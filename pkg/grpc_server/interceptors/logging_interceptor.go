@@ -13,14 +13,26 @@ func InterceptorLoggerAdapter() logging.Logger {
 	})
 }
 
-func NewUnaryLoggingInterceptor() grpc.UnaryServerInterceptor {
+type UnaryLoggingInterceptor struct{}
+
+func NewUnaryLoggingInterceptor() *UnaryLoggingInterceptor {
+	return &UnaryLoggingInterceptor{}
+}
+
+func (u UnaryLoggingInterceptor) UnaryWrap() grpc.UnaryServerInterceptor {
 	opts := []logging.Option{
 		logging.WithLogOnEvents(logging.StartCall, logging.FinishCall, logging.PayloadSent, logging.PayloadReceived),
 	}
 	return logging.UnaryServerInterceptor(InterceptorLoggerAdapter(), opts...)
 }
 
-func NewStreamLoggingInterceptor() grpc.StreamServerInterceptor {
+type StreamLoggingInterceptor struct{}
+
+func NewStreamLoggingInterceptor() *StreamLoggingInterceptor {
+	return &StreamLoggingInterceptor{}
+}
+
+func (s StreamLoggingInterceptor) StreamWrap() grpc.StreamServerInterceptor {
 	opts := []logging.Option{
 		logging.WithLogOnEvents(logging.StartCall, logging.FinishCall, logging.PayloadSent, logging.PayloadReceived),
 	}

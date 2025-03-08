@@ -18,11 +18,6 @@ type Repo interface {
 	GetStatisticsForAllNews(ctx context.Context, source string, startDate, endDate time.Time, aggregationPeriod stats_gen_v1.AggregationPeriod) ([]*stats_gen_v1.ViewData, error)
 }
 
-type Xui struct {
-	ID    string `validate:"required,uuid4"`
-	Email string `validate:"required,email"`
-}
-
 type Handler struct {
 	repo Repo
 	stats_gen_v1.UnimplementedNewsStatisticsServiceServer

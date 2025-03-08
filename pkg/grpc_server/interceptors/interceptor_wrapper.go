@@ -1,19 +1,51 @@
 package interceptors
 
 import (
-	"github.com/GeorgiyGusev/gtrk-back/pkg/grpc_server/core"
 	"go.uber.org/fx"
+	"google.golang.org/grpc"
 )
 
-func AsUnaryServerInterceptor(f any) any {
+const (
+	UnaryServerInterceptorGroup  = `group:"unaryServerInterceptors"`
+	StreamServerInterceptorGroup = `group:"streamServerInterceptors"`
+)
+
+type UnaryInterceptor interface {
+	UnaryWrap() grpc.UnaryServerInterceptor
+}
+
+type StreamInterceptor interface {
+	StreamWrap() grpc.StreamServerInterceptor
+}
+
+func BuildUnaryInterceptorChaim(interceptors []UnaryInterceptor) []grpc.UnaryServerInterceptor {
+	var chain []grpc.UnaryServerInterceptor
+	for _, interceptor := range interceptors {
+		chain = append(chain, interceptor.UnaryWrap())
+	}
+	return chain
+}
+
+func BuildStreamInterceptorChaim(interceptors []StreamInterceptor) []grpc.StreamServerInterceptor {
+	var chain []grpc.StreamServerInterceptor
+	for _, interceptor := range interceptors {
+		chain = append(chain, interceptor.StreamWrap())
+	}
+	return chain
+}
+
+func AsUnaryInterceptor(interceptor UnaryInterceptor) any {
 	return fx.Annotate(
-		f,
-		fx.ResultTags(core.UnaryServerInterceptorGroup),
+		interceptor,
+		fx.As(new(UnaryInterceptor)),
+		fx.ResultTags(UnaryServerInterceptorGroup),
 	)
 }
-func AsStreamServerInterceptor(f any) any {
+
+func AsStreamInterceptor(interceptor StreamInterceptor) any {
 	return fx.Annotate(
-		f,
-		fx.ResultTags(core.StreamServerInterceptorGroup),
+		interceptor,
+		fx.As(new(StreamInterceptor)),
+		fx.ResultTags(StreamServerInterceptorGroup),
 	)
 }

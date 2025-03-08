@@ -11,10 +11,18 @@ import (
 	"log/slog"
 )
 
-func NewValidateInterceptor(validator *protovalidate.Validator) grpc.UnaryServerInterceptor {
+type ValidationInterceptor struct {
+	validate *protovalidate.Validator
+}
+
+func NewValidationInterceptor(validate *protovalidate.Validator) *ValidationInterceptor {
+	return &ValidationInterceptor{validate: validate}
+}
+
+func (i *ValidationInterceptor) UnaryWrap() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if msg, ok := req.(proto.Message); ok {
-			if err := validator.Validate(msg); err != nil {
+			if err := i.validate.Validate(msg); err != nil {
 				slog.ErrorContext(ctx, "proto validation error", logging.ErrorField(err), "method", info.FullMethod)
 				return nil, status.Error(codes.InvalidArgument, err.Error())
 			}

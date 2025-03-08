@@ -14,9 +14,7 @@ var Module = fx.Module(
 			core.NewGrpcServer,
 			fx.ParamTags(core.UnaryServerInterceptorGroup, core.StreamServerInterceptorGroup),
 		),
-		interceptors.AsUnaryServerInterceptor(interceptors.NewValidateInterceptor),
-		interceptors.AsUnaryServerInterceptor(interceptors.NewUnaryLoggingInterceptor),
-		interceptors.AsStreamServerInterceptor(interceptors.NewStreamLoggingInterceptor),
+		interceptors.Module,
 	),
 	fx.Invoke(
 		core.RunGrpcServer,
